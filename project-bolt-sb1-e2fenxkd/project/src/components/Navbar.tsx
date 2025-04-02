@@ -60,8 +60,9 @@ const Navbar: React.FC = () => {
           {isLoggedIn ? (
             <div className="relative group">
               <button className="flex items-center space-x-1 text-gray-600 hover:text-yellow-500" onClick={handleLogout}>
+              <User size={20}  onClick={handleLogout}/>
               {<span>{userName}</span>}
-                <User size={20}  onClick={handleLogout}/>
+               
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">
                 <button
