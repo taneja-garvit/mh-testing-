@@ -3,13 +3,11 @@ import { Link } from 'react-router-dom';
 import Navbar from '../components/Navbar';
 import Footer from '../components/Footer';
 import { MapPin, Shield, Home, Clock } from 'lucide-react';
-import { useSelector } from 'react-redux'; // Correct import
-import { RootState } from '../redux/store';
+
 
 
 const HomePage: React.FC = () => {
-  const user = useSelector((store: RootState) => store.auth.user); // Type store with RootState
-const displayName = user?.name;
+
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
@@ -21,7 +19,6 @@ const displayName = user?.name;
             <h1 className="text-5xl md:text-7xl md:ml-9 font-bold text-gray-900 leading-tight mb-6">
               Find Your<br />Perfect<br />PG Home
             </h1>
-            <span className='bg-red-500'>{displayName}</span>
             <p className="text-gray-600 text-lg mb-8 max-w-lg md:ml-9">
               Discover the best PG services in your area. Our platform offers a wide range of high-quality, fully-furnished PG options with top-notch amenities.
             </p>
