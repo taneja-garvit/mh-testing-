@@ -1,6 +1,8 @@
 import React, { useState,useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, Home as HomeIcon, AlertTriangle, User } from 'lucide-react';
+import { Menu, X, Home as HomeIcon, AlertTriangle, User, SpaceIcon } from 'lucide-react';
+import { useSelector } from 'react-redux'; // Correct import
+import { RootState } from '../redux/store';
 
 const Navbar: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -8,6 +10,10 @@ const Navbar: React.FC = () => {
   const navigate = useNavigate();
   const isLoggedIn = localStorage.getItem('userToken') !== null;
   const [userName, setUserName] = useState<string | null>(null);
+  const user = useSelector((store: RootState) => store.auth.user); // Type store with RootState
+  const displayName = user?.name;
+
+
   useEffect(() => {
     const storedName = localStorage.getItem('userName');
     if (storedName) {
@@ -61,7 +67,8 @@ const Navbar: React.FC = () => {
             <div className="relative group">
               <button className="flex items-center space-x-1 text-gray-600 hover:text-yellow-500" onClick={handleLogout}>
               <User size={20}  onClick={handleLogout}/>
-              {<span>{userName}</span>}
+              {/* {<span>{userName}</span>} */}
+              {displayName}
                
               </button>
               <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 hidden group-hover:block">

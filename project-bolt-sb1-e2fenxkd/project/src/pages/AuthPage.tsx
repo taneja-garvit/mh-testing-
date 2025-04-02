@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Home, Mail, Lock, User, Phone, Eye, EyeOff } from 'lucide-react';
 import axios from 'axios';
+import { useDispatch, UseDispatch } from 'react-redux';
+import { setAuthUser } from '../redux/authSlice'; // Updated path, no .js or .ts needed
+
 
 const AuthPage: React.FC = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -9,6 +12,7 @@ const AuthPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const dispatch = useDispatch()
 
   const [formData, setFormData] = useState({
     name: '',
@@ -48,6 +52,7 @@ const AuthPage: React.FC = () => {
       // Store the real token from the backend
       localStorage.setItem('userToken', response.data.token);
       localStorage.setItem('userName', response.data.user?.name || formData.name);
+      dispatch(setAuthUser(response.data.user || { name: formData.name }));
 
 
       if (isLogin) {
