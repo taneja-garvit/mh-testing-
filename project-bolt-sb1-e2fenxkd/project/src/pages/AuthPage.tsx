@@ -102,7 +102,7 @@ const AuthPage: React.FC = () => {
           Welcome to Mother Homes
         </h2>
         <p className="mt-2 text-center text-sm text-gray-600">
-          {isLogin ? "Don't have an account? " : "Already have an account? "}
+          {isLogin ? "Login using the credentials provided by the Owner" : "Already have an account? "}
           <button
             onClick={() => {
               setIsLogin(!isLogin);
@@ -117,7 +117,7 @@ const AuthPage: React.FC = () => {
             }}
             className="font-medium text-yellow-600 hover:text-yellow-500"
           >
-            {isLogin ? 'Sign up' : 'Log in'}
+            {isLogin ? '' : 'Log in'}
           </button>
         </p>
       </div>
@@ -310,11 +310,11 @@ const AuthPage: React.FC = () => {
                 <div className="w-full border-t border-gray-300"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-white text-gray-500">Or continue with</span>
+                {/* <span className="px-2 bg-white text-gray-500">Or continue with</span> */}
               </div>
             </div>
 
-            <div className="mt-6 grid grid-cols gap-3">
+            {/* <div className="mt-6 grid grid-cols gap-3">
               <button
                 type="button"
                 onClick={handleGoogleLogin}
@@ -327,7 +327,7 @@ const AuthPage: React.FC = () => {
                 />
                 <span className="ml-2">Google</span>
               </button>
-            </div>
+            </div> */}
           </div>
         </div>
       </div>
