@@ -21,7 +21,7 @@ const AdminAddPg: React.FC = () => {
     contactPhone: '',
     contactEmail: '',
     amenities: ['wifi'],
-    images: [''],
+    images: [] as File[], // Changed from string array to File array
     rules: [''],
     latitude: '',
     longitude: '',
@@ -46,20 +46,14 @@ const AdminAddPg: React.FC = () => {
     });
   };
 
-  const handleImageChange = (index: number, value: string) => {
-    const updatedImages = [...formData.images];
-    updatedImages[index] = value;
-    setFormData({
-      ...formData,
-      images: updatedImages
-    });
-  };
-
-  const addImageField = () => {
-    setFormData({
-      ...formData,
-      images: [...formData.images, '']
-    });
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      const newImages = Array.from(e.target.files);
+      setFormData({
+        ...formData,
+        images: [...formData.images, ...newImages]
+      });
+    }
   };
 
   const removeImageField = (index: number) => {
@@ -105,18 +99,28 @@ const AdminAddPg: React.FC = () => {
         throw new Error('Please fill in all required fields');
       }
     
-      // Filter out empty values and clean the form data
-      const cleanedFormData = {
-        ...formData,
-        price: parseInt(formData.price),  // Convert price to integer
-        images: formData.images ? formData.images.filter(img => img.trim() !== '') : [],  // Remove empty images
-        rules: formData.rules ? formData.rules.filter(rule => rule.trim() !== '') : []  // Remove empty rules
-      };
-    
+      // Create FormData object for file upload
+      const submitData = new FormData();
+      Object.entries(formData).forEach(([key, value]) => {
+        if (key === 'images') {
+          value.forEach((file: File) => {
+            submitData.append('images', file);
+          });
+        } else if (key === 'amenities' || key === 'rules') {
+          submitData.append(key, JSON.stringify(value.filter(item => item.trim() !== '')));
+        } else {
+          submitData.append(key, value as string);
+        }
+      });
+
       // Send a POST request to the API endpoint
-      const response = await axios.post(`http://localhost:8000/api/v1/postdetails`, cleanedFormData);
+      const response = await axios.post('http://localhost:8000/api/v1/postdetails', submitData, {
+        headers: {
+          'Content-Type': 'multipart/form-data'
+        }
+      });
                       
-      if (response.status === 201) {  // Check if the response is successful
+      if (response.status === 201) {
         setLoading(false);
         alert('PG added successfully!');
         navigate('/admin/pg-list');
@@ -127,12 +131,12 @@ const AdminAddPg: React.FC = () => {
     
     } catch (err) {
       setLoading(false);
-      alert('Failed');  // Show a failure alert if an error occurs
+      alert('Failed');
       setError(err instanceof Error ? err.message : 'Failed to add PG. Please try again.');
     }
-    
-      
   };
+
+  // Rest of the component remains the same until the Images section
 
   return (
     <AdminLayout>
@@ -394,33 +398,32 @@ const AdminAddPg: React.FC = () => {
             <div className="mb-6">
               <h2 className="text-lg font-medium mb-4">Images <span className="text-red-500">*</span></h2>
               
-              {formData.images.map((image, index) => (
-                <div key={index} className="flex items-center mb-2">
-                  <input
-                    type="text"
-                    value={image}
-                    onChange={(e) => handleImageChange(index, e.target.value)}
-                    placeholder="Enter image URL"
-                    className="flex-grow border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-                  />
-                  <button
-                    type="button"
-                    onClick={() => removeImageField(index)}
-                    className="ml-2 text-red-500 hover:text-red-700"
-                  >
-                    <X size={20} />
-                  </button>
+              <div className="mb-4">
+                <input
+                  type="file"
+                  multiple
+                  accept="image/*"
+                  onChange={handleImageChange}
+                  className="w-full border border-gray-300 rounded-md py-2 px-3 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+                />
+              </div>
+
+              {formData.images.length > 0 && (
+                <div className="mt-2">
+                  {formData.images.map((image, index) => (
+                    <div key={index} className="flex items-center mb-2">
+                      <span className="flex-grow text-sm text-gray-700">{image.name}</span>
+                      <button
+                        type="button"
+                        onClick={() => removeImageField(index)}
+                        className="ml-2 text-red-500 hover:text-red-700"
+                      >
+                        <X size={20} />
+                      </button>
+                    </div>
+                  ))}
                 </div>
-              ))}
-              
-              <button
-                type="button"
-                onClick={addImageField}
-                className="mt-2 flex items-center text-blue-600 hover:text-blue-800"
-              >
-                <Plus size={16} className="mr-1" />
-                <span>Add Image URL</span>
-              </button>
+              )}
             </div>
             
             {/* Rules */}

@@ -56,10 +56,10 @@ const Navbar: React.FC = () => {
           <Link to="/contact" className={`${isActive('/contact') ? 'text-yellow-500 font-medium' : 'text-gray-600'} hover:text-yellow-500 transition-colors`}>
             Contact
           </Link>
-          <Link to="/complaints" className={`${isActive('/complaints') ? 'text-yellow-500 font-medium' : 'text-gray-600'} hover:text-yellow-500 transition-colors flex items-center`}>
+          {/* <Link to="/complaints" className={`${isActive('/complaints') ? 'text-yellow-500 font-medium' : 'text-gray-600'} hover:text-yellow-500 transition-colors flex items-center`}>
             <AlertTriangle size={16} className="mr-1" />
             Complaints
-          </Link>
+          </Link> */}
           <Link to="/search" className="bg-yellow-400 hover:bg-yellow-500 text-black font-medium px-6 py-2 rounded-full transition-colors">
             Explore
           </Link>
@@ -67,7 +67,6 @@ const Navbar: React.FC = () => {
             <div className="relative group">
               <button className="flex items-center space-x-1 text-gray-600 hover:text-yellow-500" onClick={handleLogout}>
               <User size={20}  onClick={handleLogout}/>
-              {/* {<span>{userName}</span>} */}
               {displayName}
                
               </button>

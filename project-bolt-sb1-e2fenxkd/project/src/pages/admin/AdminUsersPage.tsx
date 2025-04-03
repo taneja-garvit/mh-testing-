@@ -5,16 +5,10 @@ import axios from 'axios';
 import { toast, Toaster } from 'react-hot-toast';
 
 interface Student {
-  _id: string;
   name: string;
-  rollNumber: string;
   email: string;
   phone: string;
-  roomNumber: string;
-  rentAmount: number;
-  lastPaid: string;
-  hasPaid: boolean;
-  pgName: string;
+  hasPaid: boolean; // Managed locally
 }
 
 const AdminUsersPage: React.FC = () => {
@@ -31,63 +25,13 @@ const AdminUsersPage: React.FC = () => {
   const fetchStudents = async () => {
     try {
       setLoading(true);
-      // In a real app, this would be an API call
-      // const response = await axios.get('/api/students');
-      // setStudents(response.data);
-
-      // For demo purposes, using sample data
-      const sampleStudents: Student[] = [
-        {
-          _id: '1',
-          name: 'Rahul Kumar',
-          rollNumber: '2024CS001',
-          email: 'rahul.k@example.com',
-          phone: '+91 98765 43210',
-          roomNumber: 'A-101',
-          rentAmount: 8000,
-          lastPaid: '2024-02-01',
-          hasPaid: true,
-          pgName: 'Mother Homes Deluxe'
-        },
-        {
-          _id: '2',
-          name: 'Priya Sharma',
-          rollNumber: '2024CS002',
-          email: 'priya.s@example.com',
-          phone: '+91 98765 43211',
-          roomNumber: 'B-202',
-          rentAmount: 8000,
-          lastPaid: '2024-01-01',
-          hasPaid: false,
-          pgName: 'Mother Homes Premium'
-        },
-        {
-          _id: '3',
-          name: 'Amit Patel',
-          rollNumber: '2024CS003',
-          email: 'amit.p@example.com',
-          phone: '+91 98765 43212',
-          roomNumber: 'A-303',
-          rentAmount: 10000,
-          lastPaid: '2024-02-01',
-          hasPaid: true,
-          pgName: 'Mother Homes Deluxe'
-        },
-        {
-          _id: '4',
-          name: 'Sneha Reddy',
-          rollNumber: '2024CS004',
-          email: 'sneha.r@example.com',
-          phone: '+91 98765 43213',
-          roomNumber: 'B-404',
-          rentAmount: 10000,
-          lastPaid: '2024-01-01',
-          hasPaid: false,
-          pgName: 'Mother Homes Premium'
-        }
-      ];
-
-      setStudents(sampleStudents);
+      const response = await axios.get('http://localhost:8000/api/v1/students');
+      // Add hasPaid locally with default value false
+      const studentsWithPayment = response.data.students.map(student => ({
+        ...student,
+        hasPaid: false, // Default to unpaid
+      }));
+      setStudents(studentsWithPayment);
       setLoading(false);
     } catch (err) {
       toast.error('Failed to fetch students');
@@ -102,20 +46,15 @@ const AdminUsersPage: React.FC = () => {
     toast.success('Data refreshed successfully');
   };
 
-  const updateRentStatus = async (studentId: string, hasPaid: boolean) => {
+  const updateRentStatus = async (studentName: string, hasPaid: boolean) => {
     try {
-      setUpdating(studentId);
-      // In a real app, this would be an API call
-      // await axios.patch(`/api/students/${studentId}`, { hasPaid });
-      
-      // For demo, update local state
+      setUpdating(studentName); // Use name as identifier since _id isn't fetched
       setStudents(prevStudents =>
         prevStudents.map(student =>
-          student._id === studentId ? { ...student, hasPaid } : student
+          student.name === studentName ? { ...student, hasPaid } : student
         )
       );
-      
-      toast.success(`Rent status updated for ${students.find(s => s._id === studentId)?.name}`);
+      toast.success(`Rent status updated for ${studentName}`);
     } catch (err) {
       toast.error('Failed to update rent status');
     } finally {
@@ -125,15 +64,15 @@ const AdminUsersPage: React.FC = () => {
 
   const sendWhatsAppReminder = (student: Student) => {
     const message = encodeURIComponent(
-      `Dear ${student.name},\n\nThis is a reminder that your rent payment of ₹${student.rentAmount} for Room ${student.roomNumber} at ${student.pgName} is pending. Kindly clear the dues at your earliest convenience.\n\nRegards,\nMother Homes`
+      `Dear ${student.name},\n\nThis is a reminder that your rent payment is pending. Kindly clear the dues at your earliest convenience.\n\nRegards,\nMother Homes`
     );
     window.open(`https://wa.me/${student.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
   };
 
   const filteredStudents = students.filter(student =>
     student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    student.phone.includes(searchTerm)
+    student.phone.includes(searchTerm) ||
+    student.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
 
   const paidStudents = filteredStudents.filter(student => student.hasPaid);
@@ -185,30 +124,22 @@ const AdminUsersPage: React.FC = () => {
           </thead>
           <tbody className="bg-white divide-y divide-gray-200">
             {students.map((student) => (
-              <tr key={student._id}>
+              <tr key={student.name}> {/* Using name as key since _id isn't fetched */}
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm font-medium text-gray-900">{student.name}</div>
-                  <div className="text-sm text-gray-500">{student.rollNumber}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-900">Room {student.roomNumber}</div>
-                  <div className="text-sm text-gray-500">{student.pgName}</div>
+                  {/* Leave blank since roomNumber and pgName aren't fetched */}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
                   <div className="text-sm text-gray-900">{student.phone}</div>
                   <div className="text-sm text-gray-500">{student.email}</div>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm font-medium text-gray-900">₹{student.rentAmount}</div>
+                  {/* Leave blank since rentAmount isn't fetched */}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap">
-                  <div className="text-sm text-gray-500">
-                    {new Date(student.lastPaid).toLocaleDateString('en-US', {
-                      year: 'numeric',
-                      month: 'short',
-                      day: 'numeric'
-                    })}
-                  </div>
+                  {/* Leave blank since lastPaid isn't fetched */}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
                   <div className="flex items-center space-x-3">
@@ -216,8 +147,8 @@ const AdminUsersPage: React.FC = () => {
                       <input
                         type="checkbox"
                         checked={student.hasPaid}
-                        onChange={() => updateRentStatus(student._id, !student.hasPaid)}
-                        disabled={updating === student._id}
+                        onChange={() => updateRentStatus(student.name, !student.hasPaid)}
+                        disabled={updating === student.name}
                         className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
                       />
                       <span className="ml-2">Paid</span>
@@ -266,7 +197,6 @@ const AdminUsersPage: React.FC = () => {
             <button
               className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md flex items-center"
               onClick={() => {
-                // Handle export functionality
                 toast.success('Export started');
               }}
             >
