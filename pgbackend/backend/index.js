@@ -7,7 +7,8 @@ import cookieParser from "cookie-parser";
 import postroute from "./routes/post.route.js";
 import authRoutes from "./routes/authRoutes.js";
 import connectdb from "./utils/db.js";
-import config from "./config.js";  // ✅ Import config from separate file
+import config from "./config.js";  
+import studentRoutes from './routes/studentRoutes.js';
 
 const app = express();
 const server = http.createServer(app);
@@ -26,6 +27,7 @@ app.use(cors(corsOptions));
 
 app.use("/api/v1", postroute);
 app.use("/api/v1", authRoutes);
+app.use('/api/v1', studentRoutes);
 
 const port = 8000;
 server.listen(port, () => {
