@@ -18,7 +18,7 @@ import AdminAddPg from './pages/admin/AdminAddPg';
 import AdminEditPg from './pages/admin/AdminEditPg';
 import ProtectedRoute from './components/ProtectedRoute';
 import AuthPage from './pages/AuthPage';
-// import AdminUsersPage from './pages/admin/AdminUsersPage';
+import AdminUsersPage from './pages/admin/AdminUsersPage';
 
 // Create the persistor object for redux-persist
 const persistor = persistStore(store);
@@ -72,14 +72,14 @@ function App() {
                 </ProtectedRoute>
               }
             />
-            {/* <Route
+            <Route
               path="/admin/users"
               element={
                 <ProtectedRoute>
                   <AdminUsersPage />
                 </ProtectedRoute>
               }
-            /> */}
+            />
           </Routes>
         </Router>
       </PersistGate>

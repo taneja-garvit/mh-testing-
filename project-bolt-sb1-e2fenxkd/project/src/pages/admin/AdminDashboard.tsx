@@ -15,6 +15,7 @@ const AdminDashboard: React.FC = () => {
   const [recentPgs, setRecentPgs] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  
 
 
   useEffect(() => {
@@ -101,7 +102,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total PGs</p>
-                <p className="text-2xl font-semibold text-gray-900">{stats.totalPgs}</p>
+                <p className="text-2xl font-semibold text-gray-900">{recentPgs.length}</p>
               </div>
             </div>
           </div>

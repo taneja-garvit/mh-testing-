@@ -45,7 +45,7 @@ const SearchPage: React.FC = () => {
       try {
         setLoading(true);
         // In a real app, this would be an API call
-         const response = await axios.get(`http://localhost:8000/api/v1/fetchdetails`, {withCredentials:true});
+        const response = await axios.get(`http://localhost:8000/api/v1/fetchdetails`, {withCredentials:true});
         setPgs(response.data);
         setFilteredPgs(response.data);
         console.log(response.data)

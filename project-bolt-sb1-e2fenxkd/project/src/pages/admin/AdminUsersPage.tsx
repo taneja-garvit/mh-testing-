@@ -1,344 +1,333 @@
-// import React, { useState, useEffect } from 'react';
-// import AdminLayout from './AdminLayout';
-// import { Search, Download, Calendar, DollarSign, CheckCircle, XCircle } from 'lucide-react';
-// import axios from 'axios';
+import React, { useState, useEffect } from 'react';
+import AdminLayout from './AdminLayout';
+import { Search, Download, MapIcon as WhatsappIcon, CheckCircle, XCircle, AlertTriangle, RefreshCw } from 'lucide-react';
+import axios from 'axios';
+import { toast, Toaster } from 'react-hot-toast';
 
-// interface PaymentRecord {
-//   month: string;
-//   amount: number;
-//   status: 'paid' | 'pending' | 'late';
-//   paidOn?: string;
-// }
+interface Student {
+  _id: string;
+  name: string;
+  rollNumber: string;
+  email: string;
+  phone: string;
+  roomNumber: string;
+  rentAmount: number;
+  lastPaid: string;
+  hasPaid: boolean;
+  pgName: string;
+}
 
-// interface User {
-//   id: string;
-//   name: string;
-//   pgName: string;
-//   phoneNumber: string;
-//   email: string;
-//   joinDate: string;
-// //   roomNumber: string;
-//   payments: PaymentRecord[];
-// }
+const AdminUsersPage: React.FC = () => {
+  const [students, setStudents] = useState<Student[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [updating, setUpdating] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
 
-// const AdminUsersPage: React.FC = () => {
-//   const [users, setUsers] = useState<User[]>([]);
-//   const [loading, setLoading] = useState(true);
-//   const [error, setError] = useState<string | null>(null);
-//   const [searchTerm, setSearchTerm] = useState('');
-//   const [selectedUser, setSelectedUser] = useState<User | null>(null);
-//   const [showPaymentHistory, setShowPaymentHistory] = useState(false);
-//   const BACKEND_URL = import.meta.env.VITE_BACKEND_URL;
+  useEffect(() => {
+    fetchStudents();
+  }, []);
 
+  const fetchStudents = async () => {
+    try {
+      setLoading(true);
+      // In a real app, this would be an API call
+      // const response = await axios.get('/api/students');
+      // setStudents(response.data);
 
-//   useEffect(() => {
-//     const fetchUsers = async () => {
-//       try {
-//         setLoading(true);
-//         // In a real app, this would fetch from Google Sheets API
-//         // const response = await axios.get(`${BACKEND_URL}/api/users`);
-//         // setUsers(response.data);
+      // For demo purposes, using sample data
+      const sampleStudents: Student[] = [
+        {
+          _id: '1',
+          name: 'Rahul Kumar',
+          rollNumber: '2024CS001',
+          email: 'rahul.k@example.com',
+          phone: '+91 98765 43210',
+          roomNumber: 'A-101',
+          rentAmount: 8000,
+          lastPaid: '2024-02-01',
+          hasPaid: true,
+          pgName: 'Mother Homes Deluxe'
+        },
+        {
+          _id: '2',
+          name: 'Priya Sharma',
+          rollNumber: '2024CS002',
+          email: 'priya.s@example.com',
+          phone: '+91 98765 43211',
+          roomNumber: 'B-202',
+          rentAmount: 8000,
+          lastPaid: '2024-01-01',
+          hasPaid: false,
+          pgName: 'Mother Homes Premium'
+        },
+        {
+          _id: '3',
+          name: 'Amit Patel',
+          rollNumber: '2024CS003',
+          email: 'amit.p@example.com',
+          phone: '+91 98765 43212',
+          roomNumber: 'A-303',
+          rentAmount: 10000,
+          lastPaid: '2024-02-01',
+          hasPaid: true,
+          pgName: 'Mother Homes Deluxe'
+        },
+        {
+          _id: '4',
+          name: 'Sneha Reddy',
+          rollNumber: '2024CS004',
+          email: 'sneha.r@example.com',
+          phone: '+91 98765 43213',
+          roomNumber: 'B-404',
+          rentAmount: 10000,
+          lastPaid: '2024-01-01',
+          hasPaid: false,
+          pgName: 'Mother Homes Premium'
+        }
+      ];
 
-//         // For demo purposes, using sample data
-//         const sampleUsers: User[] = [
-//           {
-//             id: '1',
-//             name: 'Rahul Sharma',
-//             pgName: 'Mother Homes Deluxe',
-//             phoneNumber: '+91 9876543210',
-//             email: 'rahul.s@gmail.com',
-//             joinDate: '2023-01-15',
-//             // roomNumber: 'A-101',
-//             payments: [
-//               {
-//                 month: '2024-03',
-//                 amount: 8000,
-//                 status: 'paid',
-//                 paidOn: '2024-03-02'
-//               },
-//               {
-//                 month: '2024-02',
-//                 amount: 8000,
-//                 status: 'paid',
-//                 paidOn: '2024-02-01'
-//               },
-//               {
-//                 month: '2024-01',
-//                 amount: 8000,
-//                 status: 'paid',
-//                 paidOn: '2024-01-03'
-//               }
-//             ]
-//           },
-//           {
-//             id: '2',
-//             name: 'Priya Patel',
-//             pgName: 'Mother Homes Premium',
-//             phoneNumber: '+91 9876543211',
-//             email: 'priya.p@gmail.com',
-//             joinDate: '2023-02-01',
-//             // roomNumber: 'B-205',
-//             payments: [
-//               {
-//                 month: '2024-03',
-//                 amount: 10000,
-//                 status: 'pending'
-//               },
-//               {
-//                 month: '2024-02',
-//                 amount: 10000,
-//                 status: 'late',
-//                 paidOn: '2024-02-15'
-//               },
-//               {
-//                 month: '2024-01',
-//                 amount: 10000,
-//                 status: 'paid',
-//                 paidOn: '2024-01-02'
-//               }
-//             ]
-//           }
-//         ];
+      setStudents(sampleStudents);
+      setLoading(false);
+    } catch (err) {
+      toast.error('Failed to fetch students');
+      setLoading(false);
+    }
+  };
 
-//         setUsers(sampleUsers);
-//         setLoading(false);
-//       } catch (err) {
-//         setError('Failed to fetch user data');
-//         setLoading(false);
-//       }
-//     };
+  const handleRefresh = async () => {
+    setRefreshing(true);
+    await fetchStudents();
+    setRefreshing(false);
+    toast.success('Data refreshed successfully');
+  };
 
-//     fetchUsers();
-//   }, []);
+  const updateRentStatus = async (studentId: string, hasPaid: boolean) => {
+    try {
+      setUpdating(studentId);
+      // In a real app, this would be an API call
+      // await axios.patch(`/api/students/${studentId}`, { hasPaid });
+      
+      // For demo, update local state
+      setStudents(prevStudents =>
+        prevStudents.map(student =>
+          student._id === studentId ? { ...student, hasPaid } : student
+        )
+      );
+      
+      toast.success(`Rent status updated for ${students.find(s => s._id === studentId)?.name}`);
+    } catch (err) {
+      toast.error('Failed to update rent status');
+    } finally {
+      setUpdating(null);
+    }
+  };
 
-//   const filteredUsers = users.filter(user =>
-//     user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//     user.pgName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-//     user.phoneNumber.includes(searchTerm)
-//   );
+  const sendWhatsAppReminder = (student: Student) => {
+    const message = encodeURIComponent(
+      `Dear ${student.name},\n\nThis is a reminder that your rent payment of ₹${student.rentAmount} for Room ${student.roomNumber} at ${student.pgName} is pending. Kindly clear the dues at your earliest convenience.\n\nRegards,\nMother Homes`
+    );
+    window.open(`https://wa.me/${student.phone.replace(/\D/g, '')}?text=${message}`, '_blank');
+  };
 
-//   const formatDate = (dateString: string) => {
-//     return new Date(dateString).toLocaleDateString('en-US', {
-//       year: 'numeric',
-//       month: 'short',
-//       day: 'numeric'
-//     });
-//   };
+  const filteredStudents = students.filter(student =>
+    student.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.rollNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    student.phone.includes(searchTerm)
+  );
 
-//   const formatMonth = (monthString: string) => {
-//     return new Date(monthString).toLocaleDateString('en-US', {
-//       year: 'numeric',
-//       month: 'long'
-//     });
-//   };
+  const paidStudents = filteredStudents.filter(student => student.hasPaid);
+  const unpaidStudents = filteredStudents.filter(student => !student.hasPaid);
 
-//   const getStatusColor = (status: string) => {
-//     switch (status) {
-//       case 'paid':
-//         return 'bg-green-100 text-green-800';
-//       case 'pending':
-//         return 'bg-yellow-100 text-yellow-800';
-//       case 'late':
-//         return 'bg-red-100 text-red-800';
-//       default:
-//         return 'bg-gray-100 text-gray-800';
-//     }
-//   };
+  const StudentList = ({ students, title, isPaid }: { students: Student[], title: string, isPaid: boolean }) => (
+    <div className="bg-white rounded-lg shadow-md overflow-hidden">
+      <div className="px-6 py-4 bg-gray-50 border-b border-gray-200">
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-semibold flex items-center">
+            {isPaid ? (
+              <CheckCircle className="w-5 h-5 text-green-500 mr-2" />
+            ) : (
+              <AlertTriangle className="w-5 h-5 text-red-500 mr-2" />
+            )}
+            {title}
+          </h3>
+          <span className={`px-3 py-1 rounded-full text-sm ${
+            isPaid ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+          }`}>
+            {students.length} students
+          </span>
+        </div>
+      </div>
+      
+      <div className="overflow-x-auto">
+        <table className="min-w-full divide-y divide-gray-200">
+          <thead className="bg-gray-50">
+            <tr>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Student Details
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Room & PG
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Contact
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Rent Amount
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Last Paid
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                Actions
+              </th>
+            </tr>
+          </thead>
+          <tbody className="bg-white divide-y divide-gray-200">
+            {students.map((student) => (
+              <tr key={student._id}>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">{student.name}</div>
+                  <div className="text-sm text-gray-500">{student.rollNumber}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">Room {student.roomNumber}</div>
+                  <div className="text-sm text-gray-500">{student.pgName}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-900">{student.phone}</div>
+                  <div className="text-sm text-gray-500">{student.email}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm font-medium text-gray-900">₹{student.rentAmount}</div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap">
+                  <div className="text-sm text-gray-500">
+                    {new Date(student.lastPaid).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                      day: 'numeric'
+                    })}
+                  </div>
+                </td>
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                  <div className="flex items-center space-x-3">
+                    <label className="flex items-center">
+                      <input
+                        type="checkbox"
+                        checked={student.hasPaid}
+                        onChange={() => updateRentStatus(student._id, !student.hasPaid)}
+                        disabled={updating === student._id}
+                        className="h-4 w-4 text-yellow-600 focus:ring-yellow-500 border-gray-300 rounded"
+                      />
+                      <span className="ml-2">Paid</span>
+                    </label>
+                    
+                    {!student.hasPaid && (
+                      <button
+                        onClick={() => sendWhatsAppReminder(student)}
+                        className="text-green-600 hover:text-green-900"
+                        title="Send WhatsApp reminder"
+                      >
+                        <svg
+                          viewBox="0 0 24 24"
+                          fill="currentColor"
+                          className="w-5 h-5"
+                        >
+                          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/>
+                        </svg>
+                      </button>
+                    )}
+                  </div>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
 
-//   const PaymentHistoryModal = ({ user }: { user: User }) => (
-//     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-//       <div className="bg-white rounded-lg shadow-xl w-full max-w-4xl">
-//         <div className="p-6 border-b">
-//           <div className="flex justify-between items-center">
-//             <h3 className="text-xl font-semibold">Payment History</h3>
-//             <button
-//               onClick={() => setShowPaymentHistory(false)}
-//               className="text-gray-400 hover:text-gray-600 text-2xl"
-//             >
-//               ×
-//             </button>
-//           </div>
-//           <div className="mt-2">
-//             <p className="text-gray-600">User: {user.name}</p>
-//             <p className="text-gray-600">PG: {user.pgName}</p>
-//             {/* <p className="text-gray-600">Room: {user.roomNumber}</p> */}
-//           </div>
-//         </div>
-        
-//         <div className="p-6">
-//           <div className="overflow-x-auto">
-//             <table className="min-w-full divide-y divide-gray-200">
-//               <thead className="bg-gray-50">
-//                 <tr>
-//                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                     Month
-//                   </th>
-//                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                     Amount
-//                   </th>
-//                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                     Status
-//                   </th>
-//                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                     Paid On
-//                   </th>
-//                 </tr>
-//               </thead>
-//               <tbody className="bg-white divide-y divide-gray-200">
-//                 {user.payments.map((payment, index) => (
-//                   <tr key={index}>
-//                     <td className="px-6 py-4 whitespace-nowrap">
-//                       {formatMonth(payment.month)}
-//                     </td>
-//                     <td className="px-6 py-4 whitespace-nowrap">
-//                       ₹{payment.amount}
-//                     </td>
-//                     <td className="px-6 py-4 whitespace-nowrap">
-//                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(payment.status)}`}>
-//                         {payment.status.charAt(0).toUpperCase() + payment.status.slice(1)}
-//                       </span>
-//                     </td>
-//                     <td className="px-6 py-4 whitespace-nowrap text-gray-500">
-//                       {payment.paidOn ? formatDate(payment.paidOn) : '-'}
-//                     </td>
-//                   </tr>
-//                 ))}
-//               </tbody>
-//             </table>
-//           </div>
-//         </div>
-        
-//         <div className="p-6 border-t bg-gray-50">
-//           <button
-//             onClick={() => setShowPaymentHistory(false)}
-//             className="bg-gray-200 hover:bg-gray-300 text-gray-800 font-medium py-2 px-4 rounded-md"
-//           >
-//             Close
-//           </button>
-//         </div>
-//       </div>
-//     </div>
-//   );
+  return (
+    <AdminLayout>
+      <Toaster position="top-right" />
+      <div className="py-6">
+        <div className="flex justify-between items-center mb-6">
+          <h1 className="text-2xl font-semibold">Student Rent Management</h1>
+          <div className="flex items-center space-x-4">
+            <button
+              onClick={handleRefresh}
+              disabled={refreshing}
+              className="flex items-center text-gray-600 hover:text-gray-900"
+            >
+              <RefreshCw className={`h-5 w-5 ${refreshing ? 'animate-spin' : ''}`} />
+              <span className="ml-2">Refresh</span>
+            </button>
+            <button
+              className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md flex items-center"
+              onClick={() => {
+                // Handle export functionality
+                toast.success('Export started');
+              }}
+            >
+              <Download size={18} className="mr-2" />
+              Export Data
+            </button>
+          </div>
+        </div>
 
-//   return (
-//     <AdminLayout>
-//       <div className="py-6">
-//         <div className="flex justify-between items-center mb-6">
-//           <h1 className="text-2xl font-semibold">User Management</h1>
-//           <button
-//             className="bg-green-600 hover:bg-green-700 text-white font-medium py-2 px-4 rounded-md flex items-center"
-//             onClick={() => {
-//               // Handle export functionality
-//               alert('Export functionality will be implemented here');
-//             }}
-//           >
-//             <Download size={18} className="mr-2" />
-//             Export Data
-//           </button>
-//         </div>
+        {/* Search Bar */}
+        <div className="mb-6">
+          <div className="relative">
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name, roll number, or phone"
+              className="w-full border border-gray-300 rounded-md py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow-400"
+            />
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+          </div>
+        </div>
 
-//         {/* Search Bar */}
-//         <div className="mb-6">
-//           <div className="relative">
-//             <input
-//               type="text"
-//               value={searchTerm}
-//               onChange={(e) => setSearchTerm(e.target.value)}
-//               placeholder="Search by name, PG, or phone number"
-//               className="w-full border border-gray-300 rounded-md py-2 px-4 pl-10 focus:outline-none focus:ring-2 focus:ring-yellow-400"
-//             />
-//             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-//           </div>
-//         </div>
+        {/* Stats */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="text-sm text-gray-500 mb-1">Total Students</div>
+            <div className="text-2xl font-semibold">{students.length}</div>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="text-sm text-gray-500 mb-1">Paid Rent</div>
+            <div className="text-2xl font-semibold text-green-600">{paidStudents.length}</div>
+          </div>
+          <div className="bg-white rounded-lg shadow-md p-6">
+            <div className="text-sm text-gray-500 mb-1">Pending Rent</div>
+            <div className="text-2xl font-semibold text-red-600">{unpaidStudents.length}</div>
+          </div>
+        </div>
 
-//         {/* Users List */}
-//         <div className="bg-white rounded-lg shadow overflow-hidden">
-//           {loading ? (
-//             <div className="p-6 text-center">
-//               <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-yellow-400 border-r-transparent"></div>
-//               <p className="mt-4 text-gray-600">Loading user data...</p>
-//             </div>
-//           ) : error ? (
-//             <div className="p-6 text-center text-red-500">{error}</div>
-//           ) : (
-//             <div className="overflow-x-auto">
-//               <table className="min-w-full divide-y divide-gray-200">
-//                 <thead className="bg-gray-50">
-//                   <tr>
-//                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                       User Details
-//                     </th>
-//                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                       PG & Room
-//                     </th>
-//                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                       Contact
-//                     </th>
-//                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                       Join Date
-//                     </th>
-//                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                       Current Month
-//                     </th>
-//                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-//                       Actions
-//                     </th>
-//                   </tr>
-//                 </thead>
-//                 <tbody className="bg-white divide-y divide-gray-200">
-//                   {filteredUsers.map((user) => (
-//                     <tr key={user.id}>
-//                       <td className="px-6 py-4 whitespace-nowrap">
-//                         <div className="text-sm font-medium text-gray-900">{user.name}</div>
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap">
-//                         <div className="text-sm text-gray-900">{user.pgName}</div>
-//                         {/* <div className="text-sm text-gray-500">Room {user.roomNumber}</div> */}
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap">
-//                         <div className="text-sm text-gray-900">{user.phoneNumber}</div>
-//                         <div className="text-sm text-gray-500">{user.email}</div>
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap">
-//                         <div className="text-sm text-gray-900">{formatDate(user.joinDate)}</div>
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap">
-//                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(user.payments[0].status)}`}>
-//                           {user.payments[0].status === 'paid' ? (
-//                             <CheckCircle size={16} className="mr-1" />
-//                           ) : user.payments[0].status === 'pending' ? (
-//                             <Calendar size={16} className="mr-1" />
-//                           ) : (
-//                             <XCircle size={16} className="mr-1" />
-//                           )}
-//                           {user.payments[0].status.charAt(0).toUpperCase() + user.payments[0].status.slice(1)}
-//                         </span>
-//                       </td>
-//                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-//                         <button
-//                           onClick={() => {
-//                             setSelectedUser(user);
-//                             setShowPaymentHistory(true);
-//                           }}
-//                           className="text-blue-600 hover:text-blue-900"
-//                         >
-//                           View History
-//                         </button>
-//                       </td>
-//                     </tr>
-//                   ))}
-//                 </tbody>
-//               </table>
-//             </div>
-//           )}
-//         </div>
-//       </div>
+        {loading ? (
+          <div className="text-center py-10">
+            <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-solid border-yellow-400 border-r-transparent"></div>
+            <p className="mt-4 text-gray-600">Loading student data...</p>
+          </div>
+        ) : (
+          <div className="space-y-6">
+            <StudentList
+              students={paidStudents}
+              title="Paid Rent"
+              isPaid={true}
+            />
+            <StudentList
+              students={unpaidStudents}
+              title="Unpaid Rent"
+              isPaid={false}
+            />
+          </div>
+        )}
+      </div>
+    </AdminLayout>
+  );
+};
 
-//       {showPaymentHistory && selectedUser && (
-//         <PaymentHistoryModal user={selectedUser} />
-//       )}
-//     </AdminLayout>
-//   );
-// };
-
-// export default AdminUsersPage;
+export default AdminUsersPage;

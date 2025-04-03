@@ -85,7 +85,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                 Add New PG
               </Link>
 
-              {/* <Link
+              <Link
                 to="/admin/users"
                 className={`${
                   isActive('/admin/add-pg')
@@ -97,7 +97,7 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   isActive('/admin/add-pg') ? 'text-yellow-500' : 'text-gray-400 group-hover:text-gray-500'
                 } mr-4 h-6 w-6`} />
                 Users List
-              </Link> */}
+              </Link>
             </nav>
           </div>
           
@@ -175,19 +175,19 @@ const AdminLayout: React.FC<AdminLayoutProps> = ({ children }) => {
                   Add New PG
                 </Link>
 
-                {/* <Link
+                <Link
                   to="/admin/users"
                   className={`${
-                    isActive('/admin/add-pg')
+                    isActive('/admin/users')
                       ? 'bg-yellow-100 text-yellow-900'
                       : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
                   } group flex items-center px-2 py-2 text-sm font-medium rounded-md`}
                 >
                   <PlusCircle className={`${
-                    isActive('/admin/add-pg') ? 'text-yellow-500' : 'text-gray-400 group-hover:text-gray-500'
+                    isActive('/admin/users') ? 'text-yellow-500' : 'text-gray-400 group-hover:text-gray-500'
                   } mr-3 h-6 w-6`} />
                  Users List
-                </Link> */}
+                </Link>
               </nav>
             </div>
             
