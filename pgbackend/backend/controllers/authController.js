@@ -1,29 +1,89 @@
-import {User}  from '../models/userModel.js';
-import bcrypt from 'bcryptjs';
+// src/controllers/authController.js
+import { User } from '../models/userModel.js';
 import { generateToken } from '../utils/authUtils.js';
-import { OAuth2Client } from 'google-auth-library';
-import config from '../config.js';  // ✅ Import config from separate file
-
-const client = new OAuth2Client(config.googleClientId);
+import cloudinary from '../utils/cloudinary.js';
+import fs from 'fs/promises';
+import bcrypt from 'bcryptjs';
+import { Readable } from 'stream';
 
 export const register = async (req, res) => {
-  try {
-    const { name, email, phone, password } = req.body;
+  const { name, mobile, email, password } = req.body;
+  let { transactionHistory } = req.body;
 
-    const existingUser = await User.findOne({ email });
-    if (existingUser) {
-      return res.status(400).json({ message: 'User already exists' });
+  const photoFile = req.files?.photo ? req.files.photo[0] : null;
+  const adhaarCardPhotoFile = req.files?.adhaarCardPhoto ? req.files.adhaarCardPhoto[0] : null;
+
+  try {
+    console.log('req.body:', req.body);
+    console.log('req.files:', req.files);
+
+    if (!name || !mobile || !email || !password || !photoFile || !adhaarCardPhotoFile) {
+      return res.status(400).json({ message: 'All fields (name, mobile, email, password, photo, adhaarCardPhoto) are required' });
     }
 
-    const user = await User.create({ name, email, phone, password });
-    const token = generateToken(user._id.toString());
+    const existingUser = await User.findOne({ $or: [{ email }, { mobile }] });
+    if (existingUser) {
+      return res.status(400).json({ message: 'User with this email or mobile already exists' });
+    }
+
+    // Helper function to upload a Buffer to Cloudinary
+    const uploadToCloudinary = (buffer, folder) => {
+      return new Promise((resolve, reject) => {
+        const stream = cloudinary.uploader.upload_stream(
+          {
+            folder: folder,
+            transformation: [{ width: 500, height: 500, crop: 'limit' }],
+          },
+          (error, result) => {
+            if (error) reject(error);
+            else resolve(result);
+          }
+        );
+        const readableStream = new Readable();
+        readableStream.push(buffer);
+        readableStream.push(null); // End the stream
+        readableStream.pipe(stream);
+      });
+    };
+
+    // Upload photo and adhaarCardPhoto directly from memory
+    const photoUpload = await uploadToCloudinary(photoFile.buffer, 'users/photos');
+    const adhaarCardPhotoUpload = await uploadToCloudinary(adhaarCardPhotoFile.buffer, 'users/adhaar');
+
+    if (transactionHistory) {
+      transactionHistory = JSON.parse(transactionHistory);
+      if (!Array.isArray(transactionHistory)) {
+        return res.status(400).json({ message: 'Transaction history must be an array' });
+      }
+    } else {
+      transactionHistory = [];
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    const user = await User.create({
+      name,
+      mobile,
+      email,
+      password: hashedPassword,
+      photo: photoUpload.secure_url,
+      adhaarCardPhoto: adhaarCardPhotoUpload.secure_url,
+      transactionHistory,
+    });
+
+    const token = generateToken(user._id);
 
     res.status(201).json({
       token,
-      user: { id: user._id, name, email, phone }
+      user: {
+        id: user._id,
+        name: user.name,
+        mobile: user.mobile,
+        email: user.email,
+      },
     });
   } catch (error) {
-    res.status(500).json({ message: 'Server error' });
+    res.status(500).json({ message: 'Registration failed', error: error.message });
   }
 };
 
@@ -46,37 +106,3 @@ export const login = async (req, res) => {
   }
 };
 
-export const googleLogin = async (req, res) => {
-  try {
-    const { token } = req.body;
-    
-    const ticket = await client.verifyIdToken({
-      idToken: token,
-      audience: config.googleClientId
-    });
-
-    const payload = ticket.getPayload();
-    if (!payload) throw new Error('Invalid Google token');
-
-    const { email, name, sub: googleId } = payload;
-
-    let user = await User.findOne({ email });
-    if (!user) {
-      user = await User.create({
-        name: name || 'Google User',
-        email,
-        phone: 'N/A',
-        password: Math.random().toString(36).slice(-8),
-        googleId
-      });
-    }
-
-    const jwtToken = generateToken(user._id.toString());
-    res.json({
-      token: jwtToken,
-      user: { id: user._id, name: user.name, email, phone: user.phone }
-    });
-  } catch (error) {
-    res.status(401).json({ message: 'Google authentication failed' });
-  }
-};

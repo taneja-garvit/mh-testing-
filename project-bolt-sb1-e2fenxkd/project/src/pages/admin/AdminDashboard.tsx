@@ -138,7 +138,7 @@ const AdminDashboard: React.FC = () => {
               </div>
               <div className="ml-4">
                 <p className="text-sm font-medium text-gray-500">Total Revenue</p>
-                <p className="text-2xl font-semibold text-gray-900">₹{stats.totalRevenue.toLocaleString()}</p>
+                <p className="text-2xl font-semibold text-gray-900">₹{0}</p>
               </div>
             </div>
           </div>
